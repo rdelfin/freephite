@@ -2,11 +2,11 @@ import chalk from 'chalk';
 import { TContext } from '../../lib/context';
 import { TScopeSpec } from '../../lib/engine/scope_spec';
 import { ExitFailedError, KilledError } from '../../lib/errors';
+import { getOctokit } from '../../lib/github';
 import { CommandFailedError } from '../../lib/git/runner';
 import { getPRInfoForBranches } from './prepare_branches';
 import { submitPullRequest } from './submit_prs';
 import { validateBranchesToSubmit } from './validate_branches';
-import { Octokit } from '@octokit/core';
 import { type PR, StackCommentBody } from './comment_body';
 
 // eslint-disable-next-line max-lines-per-function
@@ -140,14 +140,7 @@ export async function submitAction(
     );
   }
 
-  const auth = context.userConfig.getFPAuthToken();
-  if (!auth) {
-    throw new Error(
-      'No freephite auth token found. Run `fp auth-fp -t <YOUR_GITHUB_TOKEN>` then try again.'
-    );
-  }
-
-  const octokit = new Octokit({ auth });
+  const octokit = getOctokit(context.userConfig);
 
   const prs: Array<PR> = [];
   for (const branchName of branchNames) {

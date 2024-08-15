@@ -3,8 +3,7 @@ import chalk from 'chalk';
 import { TContext } from '../../lib/context';
 import { ExitFailedError } from '../../lib/errors';
 import { Unpacked } from '../../lib/utils/ts_helpers';
-
-import { Octokit } from '@octokit/core';
+import { getOctokit } from '../../lib/github';
 
 const submitPullRequestsParams = {
   authToken: t.optional(t.string),
@@ -141,14 +140,7 @@ async function requestServerToSubmitPRs({
   trunkBranchName: string;
   context: TContext;
 }): Promise<TSubmittedPR[]> {
-  const auth = context.userConfig.getFPAuthToken();
-  if (!auth) {
-    throw new Error(
-      'No freephite auth token found. Run `fp auth-fp -t <YOUR_GITHUB_TOKEN>` then try again.'
-    );
-  }
-
-  const octokit = new Octokit({ auth });
+  const octokit = getOctokit(context.userConfig);
 
   const owner = context.repoConfig.getRepoOwner();
   const repo = context.repoConfig.getRepoName();
